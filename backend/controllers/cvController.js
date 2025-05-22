@@ -4,15 +4,14 @@ const asyncHandler = require('../middleware/async');
 const puppeteer = require('puppeteer');
 const path = require('path');
 const fs = require('fs');
-const handlebars = require('handlebars');
+const handlebars = require('../utils/handlebarsHelpers');
 
 /**
  * @desc    Generate and download a CV as PDF
  * @route   GET /api/v1/cv/generate
  * @access  Private
  */
-exports.generateCV = asyncHandler(async (req, res, next) => {
-    // Get user profile with all related data
+exports.generateCV = asyncHandler(async (req, res, next) => {    // Get user profile with all related data
     const profile = await Profile.findOne({ user: req.user.id })
         .populate({
             path: 'user',
@@ -28,36 +27,67 @@ exports.generateCV = asyncHandler(async (req, res, next) => {
         })
         .populate({
             path: 'projects',
-            match: { featured: true },
-            options: { limit: 3 }
+            options: { sort: { createdAt: -1 } }
         })
         .populate('skills')
         .populate('languages');
 
+    // Debug log
+    console.log('Profile data:', {
+        name: profile.user.name,
+        educationCount: profile.education ? profile.education.length : 0,
+        experienceCount: profile.experience ? profile.experience.length : 0,
+        projectsCount: profile.projects ? profile.projects.length : 0,
+        skillsCount: profile.skills ? profile.skills.length : 0,
+        languagesCount: profile.languages ? profile.languages.length : 0
+    });
+
     if (!profile) {
         return next(new ErrorResponse('Profile not found', 404));
-    }
+    } try {
+        // Convert Mongoose documents to plain objects
+        const plainProfile = profile.toObject();
 
-    try {
         // Prepare data for CV template
         const cvData = {
             profile: {
-                name: profile.user.name,
-                headline: profile.headline || '',
-                email: profile.user.email,
-                phone: profile.phone || '',
-                location: profile.location || '',
-                website: profile.website || '',
-                bio: profile.bio || '',
-                social: profile.social || {}
+                name: plainProfile.user.name,
+                headline: plainProfile.headline || '',
+                email: plainProfile.user.email,
+                phone: plainProfile.phone || '',
+                location: plainProfile.location || '',
+                website: plainProfile.website || '',
+                bio: plainProfile.bio || '',
+                social: plainProfile.social || {}
             },
-            education: profile.education || [],
-            experience: profile.experience || [],
-            projects: profile.projects || [],
-            skills: profile.skills || [],
-            languages: profile.languages || [],
-            themeColor: profile.cvColor || '#4F46E5'
-        };
+            education: plainProfile.education ? plainProfile.education.map(edu => ({
+                ...edu,
+                from: new Date(edu.from),
+                to: edu.to ? new Date(edu.to) : null
+            })) : [],
+            experience: plainProfile.experience ? plainProfile.experience.map(exp => ({
+                ...exp,
+                from: new Date(exp.from),
+                to: exp.to ? new Date(exp.to) : null
+            })) : [],
+            projects: plainProfile.projects ? plainProfile.projects.map(proj => ({
+                ...proj,
+                from: proj.from ? new Date(proj.from) : null,
+                to: proj.to ? new Date(proj.to) : null
+            })) : [],
+            skills: plainProfile.skills || [],
+            languages: plainProfile.languages || [],
+            themeColor: plainProfile.cvColor || '#4F46E5'
+        };        // Debug log the CV data
+        console.log('CV Data:', JSON.stringify({
+            profileName: cvData.profile.name,
+            educationCount: cvData.education.length,
+            firstEducation: cvData.education[0],
+            experienceCount: cvData.experience.length,
+            firstExperience: cvData.experience[0],
+            projectsCount: cvData.projects.length,
+            firstProject: cvData.projects[0]
+        }, null, 2));
 
         // Read the CV template (classic template)
         const templatePath = path.join(__dirname, '../templates/cv-classic.hbs');

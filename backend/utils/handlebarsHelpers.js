@@ -1,10 +1,17 @@
 const handlebars = require('handlebars');
 
+const Handlebars = handlebars.create({
+    allowProtoPropertiesByDefault: true,
+    allowProtoMethodsByDefault: true
+});
+
 // Helper to format dates
-handlebars.registerHelper('formatDate', function (date, options) {
+Handlebars.registerHelper('formatDate', function (date) {
     if (!date) return '';
 
     const d = new Date(date);
+    if (isNaN(d.getTime())) return '';
+
     const monthNames = [
         'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
         'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
@@ -14,7 +21,7 @@ handlebars.registerHelper('formatDate', function (date, options) {
 });
 
 // Helper to get current date
-handlebars.registerHelper('currentDate', function () {
+Handlebars.registerHelper('currentDate', function () {
     const d = new Date();
     return d.toLocaleDateString('en-US', {
         year: 'numeric',
@@ -23,4 +30,9 @@ handlebars.registerHelper('currentDate', function () {
     });
 });
 
-module.exports = handlebars;
+// Helper to check if a value exists
+Handlebars.registerHelper('exists', function (value) {
+    return value !== undefined && value !== null;
+});
+
+module.exports = Handlebars;
