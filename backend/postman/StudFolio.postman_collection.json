@@ -1,0 +1,805 @@
+{
+	"info": {
+		"_postman_id": "e5b3f8e0-1b5b-4b3c-8f5a-9d9e7b3e2f1d",
+		"name": "StudFolio API",
+		"description": "API endpoints for StudFolio application",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:5000/api/v1",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"John Doe\",\n    \"email\": \"john@example.com\",\n    \"password\": \"Password123\",\n    \"confirmPassword\": \"Password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "register"]
+						},
+						"description": "Register a new user"
+					}
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"john@example.com\",\n    \"password\": \"Password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "login"]
+						},
+						"description": "Login user"
+					}
+				},
+				{
+					"name": "Get Current User",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/auth/me",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "me"]
+						},
+						"description": "Get current logged in user details"
+					}
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/auth/logout",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "logout"]
+						},
+						"description": "Logout user"
+					}
+				},
+				{
+					"name": "Forgot Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"john@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/forgot-password",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "forgot-password"]
+						},
+						"description": "Request password reset"
+					}
+				},
+				{
+					"name": "Reset Password",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"password\": \"NewPassword123\",\n    \"confirmPassword\": \"NewPassword123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/reset-password/{{resetToken}}",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "reset-password", "{{resetToken}}"]
+						},
+						"description": "Reset password with token"
+					}
+				},
+				{
+					"name": "Update Password",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"currentPassword\": \"Password123\",\n    \"newPassword\": \"NewPassword123\",\n    \"confirmNewPassword\": \"NewPassword123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/update-password",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "update-password"]
+						},
+						"description": "Update password for logged in user"
+					}
+				},
+				{
+					"name": "Verify Email",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/auth/verify-email/{{verificationToken}}",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "verify-email", "{{verificationToken}}"]
+						},
+						"description": "Verify email address"
+					}
+				}
+			]
+		},
+		{
+			"name": "Profile",
+			"item": [
+				{
+					"name": "Create/Update Profile",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"headline\": \"Full Stack Developer\",\n    \"bio\": \"Passionate about web development\",\n    \"location\": \"New York, USA\",\n    \"website\": \"https://example.com\",\n    \"phone\": \"+1234567890\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/profile",
+							"host": ["{{base_url}}"],
+							"path": ["profile"]
+						},
+						"description": "Create or update user profile"
+					}
+				},
+				{
+					"name": "Get My Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/profile/me",
+							"host": ["{{base_url}}"],
+							"path": ["profile", "me"]
+						},
+						"description": "Get current user's profile"
+					}
+				},
+				{
+					"name": "Get Profile By User ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/profile/user/{{userId}}",
+							"host": ["{{base_url}}"],
+							"path": ["profile", "user", "{{userId}}"]
+						},
+						"description": "Get profile by user ID"
+					}
+				},
+				{
+					"name": "Get All Profiles",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/profile",
+							"host": ["{{base_url}}"],
+							"path": ["profile"]
+						},
+						"description": "Get all user profiles"
+					}
+				},
+				{
+					"name": "Delete Profile",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/profile",
+							"host": ["{{base_url}}"],
+							"path": ["profile"]
+						},
+						"description": "Delete user profile"
+					}
+				},
+				{
+					"name": "Update Social Links",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"linkedin\": \"https://linkedin.com/in/johndoe\",\n    \"github\": \"https://github.com/johndoe\",\n    \"twitter\": \"https://twitter.com/johndoe\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/profile/social",
+							"host": ["{{base_url}}"],
+							"path": ["profile", "social"]
+						},
+						"description": "Update social media links"
+					}
+				}
+			]
+		},
+		{
+			"name": "Education",
+			"item": [
+				{
+					"name": "Add Education",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"school\": \"University of Example\",\n    \"degree\": \"Bachelor of Science\",\n    \"fieldOfStudy\": \"Computer Science\",\n    \"from\": \"2020-09-01\",\n    \"to\": \"2024-06-30\",\n    \"current\": false,\n    \"description\": \"Studied computer science fundamentals\",\n    \"location\": \"New York, USA\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/profile/education",
+							"host": ["{{base_url}}"],
+							"path": ["profile", "education"]
+						},
+						"description": "Add education to profile"
+					}
+				},
+				{
+					"name": "Get All Education",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/profile/education",
+							"host": ["{{base_url}}"],
+							"path": ["profile", "education"]
+						},
+						"description": "Get all education entries"
+					}
+				},
+				{
+					"name": "Update Education",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"school\": \"Updated University Name\",\n    \"degree\": \"Updated Degree\",\n    \"fieldOfStudy\": \"Updated Field\",\n    \"from\": \"2020-09-01\",\n    \"to\": \"2024-06-30\",\n    \"current\": false,\n    \"description\": \"Updated description\",\n    \"location\": \"Updated Location\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/profile/education/{{educationId}}",
+							"host": ["{{base_url}}"],
+							"path": ["profile", "education", "{{educationId}}"]
+						},
+						"description": "Update education entry"
+					}
+				},
+				{
+					"name": "Delete Education",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/profile/education/{{educationId}}",
+							"host": ["{{base_url}}"],
+							"path": ["profile", "education", "{{educationId}}"]
+						},
+						"description": "Delete education entry"
+					}
+				}
+			]
+		},
+		{
+			"name": "Experience",
+			"item": [
+				{
+					"name": "Add Experience",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Software Developer\",\n    \"company\": \"Tech Company\",\n    \"location\": \"San Francisco, USA\",\n    \"from\": \"2022-01-01\",\n    \"to\": \"2023-12-31\",\n    \"current\": false,\n    \"description\": \"Worked on various web development projects\",\n    \"type\": \"full-time\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/profile/experience",
+							"host": ["{{base_url}}"],
+							"path": ["profile", "experience"]
+						},
+						"description": "Add experience to profile"
+					}
+				},
+				{
+					"name": "Get All Experience",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/profile/experience",
+							"host": ["{{base_url}}"],
+							"path": ["profile", "experience"]
+						},
+						"description": "Get all experience entries"
+					}
+				},
+				{
+					"name": "Update Experience",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Senior Developer\",\n    \"company\": \"Updated Company\",\n    \"location\": \"Updated Location\",\n    \"from\": \"2022-01-01\",\n    \"to\": \"2023-12-31\",\n    \"current\": false,\n    \"description\": \"Updated role description\",\n    \"type\": \"full-time\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/profile/experience/{{experienceId}}",
+							"host": ["{{base_url}}"],
+							"path": ["profile", "experience", "{{experienceId}}"]
+						},
+						"description": "Update experience entry"
+					}
+				},
+				{
+					"name": "Delete Experience",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/profile/experience/{{experienceId}}",
+							"host": ["{{base_url}}"],
+							"path": ["profile", "experience", "{{experienceId}}"]
+						},
+						"description": "Delete experience entry"
+					}
+				}
+			]
+		},
+		{
+			"name": "Projects",
+			"item": [
+				{
+					"name": "Add Project",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"E-commerce Platform\",\n    \"description\": \"A full-stack e-commerce solution\",\n    \"technologies\": [\"React\", \"Node.js\", \"MongoDB\"],\n    \"liveUrl\": \"https://example.com/project\",\n    \"githubUrl\": \"https://github.com/username/project\",\n    \"featured\": true,\n    \"from\": \"2023-01-01\",\n    \"to\": \"2023-06-30\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/profile/projects",
+							"host": ["{{base_url}}"],
+							"path": ["profile", "projects"]
+						},
+						"description": "Add project to profile"
+					}
+				},
+				{
+					"name": "Get All Projects",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/profile/projects",
+							"host": ["{{base_url}}"],
+							"path": ["profile", "projects"]
+						},
+						"description": "Get all projects"
+					}
+				},
+				{
+					"name": "Get Featured Projects",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/profile/projects/featured",
+							"host": ["{{base_url}}"],
+							"path": ["profile", "projects", "featured"]
+						},
+						"description": "Get featured projects"
+					}
+				},
+				{
+					"name": "Update Project",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Updated Project Title\",\n    \"description\": \"Updated project description\",\n    \"technologies\": [\"Updated Tech Stack\"],\n    \"liveUrl\": \"https://updated-url.com\",\n    \"githubUrl\": \"https://github.com/username/updated-project\",\n    \"featured\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/profile/projects/{{projectId}}",
+							"host": ["{{base_url}}"],
+							"path": ["profile", "projects", "{{projectId}}"]
+						},
+						"description": "Update project"
+					}
+				},
+				{
+					"name": "Delete Project",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/profile/projects/{{projectId}}",
+							"host": ["{{base_url}}"],
+							"path": ["profile", "projects", "{{projectId}}"]
+						},
+						"description": "Delete project"
+					}
+				}
+			]
+		},
+		{
+			"name": "Skills",
+			"item": [
+				{
+					"name": "Add Skill",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"JavaScript\",\n    \"level\": 4,\n    \"category\": \"technical\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/profile/skills",
+							"host": ["{{base_url}}"],
+							"path": ["profile", "skills"]
+						},
+						"description": "Add skill to profile"
+					}
+				},
+				{
+					"name": "Get All Skills",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/profile/skills",
+							"host": ["{{base_url}}"],
+							"path": ["profile", "skills"]
+						},
+						"description": "Get all skills"
+					}
+				},
+				{
+					"name": "Update Skill",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Updated Skill\",\n    \"level\": 5,\n    \"category\": \"technical\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/profile/skills/{{skillId}}",
+							"host": ["{{base_url}}"],
+							"path": ["profile", "skills", "{{skillId}}"]
+						},
+						"description": "Update skill"
+					}
+				},
+				{
+					"name": "Delete Skill",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/profile/skills/{{skillId}}",
+							"host": ["{{base_url}}"],
+							"path": ["profile", "skills", "{{skillId}}"]
+						},
+						"description": "Delete skill"
+					}
+				}
+			]
+		},
+		{
+			"name": "Languages",
+			"item": [
+				{
+					"name": "Add Language",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"English\",\n    \"proficiency\": \"fluent\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/profile/languages",
+							"host": ["{{base_url}}"],
+							"path": ["profile", "languages"]
+						},
+						"description": "Add language to profile"
+					}
+				},
+				{
+					"name": "Get All Languages",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/profile/languages",
+							"host": ["{{base_url}}"],
+							"path": ["profile", "languages"]
+						},
+						"description": "Get all languages"
+					}
+				},
+				{
+					"name": "Update Language",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"French\",\n    \"proficiency\": \"intermediate\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/profile/languages/{{languageId}}",
+							"host": ["{{base_url}}"],
+							"path": ["profile", "languages", "{{languageId}}"]
+						},
+						"description": "Update language"
+					}
+				},
+				{
+					"name": "Delete Language",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/profile/languages/{{languageId}}",
+							"host": ["{{base_url}}"],
+							"path": ["profile", "languages", "{{languageId}}"]
+						},
+						"description": "Delete language"
+					}
+				}
+			]
+		},
+		{
+			"name": "CV",
+			"item": [
+				{
+					"name": "Generate CV",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/cv/generate",
+							"host": ["{{base_url}}"],
+							"path": ["cv", "generate"]
+						},
+						"description": "Generate CV in PDF format"
+					}
+				}
+			]
+		}
+	]
+}
