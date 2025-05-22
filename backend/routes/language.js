@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router({ mergeParams: true });
 const {
-  addLanguage,
-  getLanguages,
-  updateLanguage,
-  deleteLanguage
+    addLanguage,
+    getLanguages,
+    updateLanguage,
+    deleteLanguage
 } = require('../controllers/languageController');
 const { protect } = require('../middleware/auth');
 const { languageValidation } = require('../middleware/validator');

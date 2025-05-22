@@ -1,17 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const {
-  createProfile,
-  getMyProfile,
-  getProfileByUserId,
-  getAllProfiles,
-  deleteProfile,
-  updateSocialLinks
+    createProfile,
+    getMyProfile,
+    getProfileByUserId,
+    getAllProfiles,
+    deleteProfile,
+    updateSocialLinks
 } = require('../controllers/profileController');
 const { protect } = require('../middleware/auth');
 const {
-  profileValidation,
-  socialLinksValidation
+    profileValidation,
+    socialLinksValidation
 } = require('../middleware/validator');
 
 // Profile CRUD routes

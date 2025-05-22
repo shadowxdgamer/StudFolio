@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router({ mergeParams: true });
 const {
-  addExperience,
-  getExperience,
-  updateExperience,
-  deleteExperience
+    addExperience,
+    getExperience,
+    updateExperience,
+    deleteExperience
 } = require('../controllers/experienceController');
 const { protect } = require('../middleware/auth');
 const { experienceValidation } = require('../middleware/validator');

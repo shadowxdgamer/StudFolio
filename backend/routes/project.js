@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router({ mergeParams: true });
 const {
-  addProject,
-  getProjects,
-  getFeaturedProjects,
-  updateProject,
-  deleteProject
+    addProject,
+    getProjects,
+    getFeaturedProjects,
+    updateProject,
+    deleteProject
 } = require('../controllers/projectController');
 const { protect } = require('../middleware/auth');
 const { projectValidation } = require('../middleware/validator');

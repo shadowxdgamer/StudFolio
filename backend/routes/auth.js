@@ -1,22 +1,22 @@
 const express = require('express');
 const router = express.Router();
 const {
-  register,
-  login,
-  getMe,
-  logout,
-  forgotPassword,
-  resetPassword,
-  updatePassword,
-  verifyEmail
+    register,
+    login,
+    getMe,
+    logout,
+    forgotPassword,
+    resetPassword,
+    updatePassword,
+    verifyEmail
 } = require('../controllers/authController');
 const { protect } = require('../middleware/auth');
 const {
-  registerValidation,
-  loginValidation,
-  forgotPasswordValidation,
-  resetPasswordValidation,
-  updatePasswordValidation
+    registerValidation,
+    loginValidation,
+    forgotPasswordValidation,
+    resetPasswordValidation,
+    updatePasswordValidation
 } = require('../middleware/validator');
 
 // Register and login routes
