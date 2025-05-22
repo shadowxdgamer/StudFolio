@@ -35,6 +35,11 @@ const EducationPage = () => {
   const [educationList, setEducationList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  // Function to safely update education list
+  const updateEducationList = (data) => {
+    setEducationList(Array.isArray(data) ? data : []);
+  };
   const [openDialog, setOpenDialog] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -53,15 +58,14 @@ const EducationPage = () => {
     validationSchema: educationSchema,
     onSubmit: async (values, { resetForm, setSubmitting }) => {
       try {
-        let result;
-        if (editingId) {
+        let result;      if (editingId) {
           result = await profileService.education.update(editingId, values);
-          setEducationList(educationList.map(item => 
-            item._id === editingId ? result : item
+          updateEducationList(educationList.map(item => 
+            item._id === editingId ? result.data : item
           ));
         } else {
           result = await profileService.education.add(values);
-          setEducationList([...educationList, result]);
+          updateEducationList([...educationList, result.data]);
         }
         resetForm();
         setOpenDialog(false);
@@ -74,17 +78,17 @@ const EducationPage = () => {
       }
     },
   });
-
   useEffect(() => {
     const fetchEducation = async () => {
       try {
         setLoading(true);
         const data = await profileService.education.getAll();
-        setEducationList(data);
+        updateEducationList(data);
         setError(null);
       } catch (err) {
         console.error('Error fetching education:', err);
         setError(err.response?.data?.message || 'Failed to fetch education data');
+        updateEducationList([]); // Reset to empty array on error
       } finally {
         setLoading(false);
       }
@@ -129,11 +133,9 @@ const EducationPage = () => {
   };
 
   const handleDelete = async () => {
-    if (!deletingId) return;
-
-    try {
+    if (!deletingId) return;    try {
       await profileService.education.delete(deletingId);
-      setEducationList(educationList.filter(item => item._id !== deletingId));
+      updateEducationList(educationList.filter(item => item._id !== deletingId));
       handleCloseDeleteDialog();
     } catch (err) {
       console.error('Error deleting education:', err);

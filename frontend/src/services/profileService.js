@@ -23,10 +23,9 @@ const profileService = {    // Get current user profile
     },
 
     // Education related endpoints
-    education: {
-        getAll: async () => {
+    education: {        getAll: async () => {
             const response = await api.get('/profile/education');
-            return response.data;
+            return response.data.data || [];
         },
         add: async (educationData) => {
             const response = await api.post('/profile/education', educationData);
