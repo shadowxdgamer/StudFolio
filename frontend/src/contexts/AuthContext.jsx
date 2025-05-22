@@ -28,14 +28,17 @@ export const AuthProvider = ({ children }) => {
 
     initializeAuth();
   }, []);
-
   // Login handler
   const login = async (credentials) => {
     try {
       setError(null);
       setLoading(true);
-      const { token, user } = await authService.login(credentials);
-      setUser(user);
+      const { accessToken, refreshToken, user } = await authService.login(credentials);
+      if (user) {
+        setUser(user);
+        // Store authentication state
+        localStorage.setItem('has_profile', user.hasProfile || false);
+      }
       return { success: true, user };
     } catch (err) {
       const errorMessage = err.response?.data?.message || 'Failed to login';

@@ -45,7 +45,6 @@ const CVPreviewPage = () => {
   const [success, setSuccess] = useState(null);
   const { user } = useAuth();
   const [tabValue, setTabValue] = useState(0);
-
   useEffect(() => {
     const fetchCVData = async () => {
       try {
@@ -53,9 +52,17 @@ const CVPreviewPage = () => {
         setError(null);
         
         const data = await profileService.getCVPreview();
+        if (!data || !data.profile) {
+          setError('Please complete your profile before accessing the CV page.');
+          return;
+        }
         setCvData(data);
       } catch (err) {
-        setError(err.response?.data?.message || 'Failed to load CV data. Please try again.');
+        if (err.response?.status === 404) {
+          setError('Please create your profile before accessing the CV page.');
+        } else {
+          setError(err.response?.data?.message || 'Failed to load CV data. Please try again.');
+        }
       } finally {
         setLoading(false);
       }

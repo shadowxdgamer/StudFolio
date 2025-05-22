@@ -9,13 +9,21 @@ const api = axios.create({
     },
 });
 
-// Add request interceptor to add token to every request
+// Add request interceptor to add tokens to every request
 api.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem(import.meta.env.VITE_TOKEN_KEY || 'studfolio_token');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
+        const accessToken = localStorage.getItem(import.meta.env.VITE_ACCESS_TOKEN_KEY || 'studfolio_access_token');
+        const refreshToken = localStorage.getItem(import.meta.env.VITE_REFRESH_TOKEN_KEY || 'studfolio_refresh_token');
+
+        if (accessToken) {
+            config.headers.Authorization = `Bearer ${accessToken}`;
         }
+
+        // Add refresh token to specific endpoints that need it
+        if (config.url.includes('/auth/refresh') && refreshToken) {
+            config.headers['X-Refresh-Token'] = refreshToken;
+        }
+
         return config;
     },
     (error) => {

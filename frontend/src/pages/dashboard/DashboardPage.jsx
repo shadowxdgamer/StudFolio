@@ -33,16 +33,22 @@ const DashboardPage = () => {
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
         setLoading(true);
         const profile = await profileService.getProfile();
         setProfileData(profile);
+        // Update local storage for profile existence
+        localStorage.setItem('has_profile', 'true');
       } catch (err) {
-        console.error('Error fetching profile:', err);
-        setError('Failed to load profile data');
+        if (err.response?.status === 404) {
+          localStorage.removeItem('has_profile');
+          setProfileData(null);
+        } else {
+          console.error('Error fetching profile:', err);
+          setError('Failed to load profile data');
+        }
       } finally {
         setLoading(false);
       }

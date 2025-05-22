@@ -127,3 +127,52 @@ exports.generateCV = asyncHandler(async (req, res, next) => {    // Get user pro
         return next(new ErrorResponse('Could not generate CV', 500));
     }
 });
+
+/**
+ * @desc    Get CV preview data
+ * @route   GET /api/v1/cv/preview
+ * @access  Private
+ */
+exports.getCVPreview = asyncHandler(async (req, res, next) => {
+    // Get user profile with all related data
+    const profile = await Profile.findOne({ user: req.user.id })
+        .populate({
+            path: 'user',
+            select: 'name email'
+        })
+        .populate({
+            path: 'education',
+            options: { sort: { from: -1 } }
+        })
+        .populate({
+            path: 'experience',
+            options: { sort: { from: -1 } }
+        })
+        .populate({
+            path: 'projects',
+            options: { sort: { createdAt: -1 } }
+        })
+        .populate('skills')
+        .populate('languages');
+
+    if (!profile) {
+        return next(new ErrorResponse('Profile not found', 404));
+    }
+
+    const cvData = {
+        profile: {
+            ...profile.toObject(),
+            user: profile.user
+        },
+        education: profile.education || [],
+        experience: profile.experience || [],
+        projects: profile.projects || [],
+        skills: profile.skills || [],
+        languages: profile.languages || []
+    };
+
+    res.status(200).json({
+        success: true,
+        data: cvData
+    });
+});

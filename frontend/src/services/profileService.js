@@ -1,10 +1,9 @@
 import api from './api';
 
-const profileService = {
-    // Get current user profile
+const profileService = {    // Get current user profile
     getProfile: async () => {
-        const response = await api.get('/profile');
-        return response.data;
+        const response = await api.get('/profile/me');
+        return response.data.data;
     },
 
     // Create or update profile
@@ -117,9 +116,7 @@ const profileService = {
             const response = await api.delete(`/profile/projects/${id}`);
             return response.data;
         }
-    },
-
-    // CV generation endpoint
+    },    // CV generation endpoint
     generateCV: async () => {
         const response = await api.get('/cv/generate', { responseType: 'blob' });
         return response.data;
@@ -128,7 +125,7 @@ const profileService = {
     // Get CV preview data
     getCVPreview: async () => {
         const response = await api.get('/cv/preview');
-        return response.data;
+        return response.data.data;
     }
 };
 

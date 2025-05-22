@@ -8,18 +8,17 @@ export const authService = {
     register: async (userData) => {
         const response = await api.post('/auth/register', userData);
         return response.data;
-    },
-
-    // Login user
+    },    // Login user
     login: async (credentials) => {
         const response = await api.post('/auth/login', credentials);
-        const { token, user } = response.data;
+        const { accessToken, refreshToken, user } = response.data;
 
-        if (token) {
-            localStorage.setItem(TOKEN_KEY, token);
+        if (accessToken && refreshToken) {
+            localStorage.setItem(import.meta.env.VITE_ACCESS_TOKEN_KEY || 'studfolio_access_token', accessToken);
+            localStorage.setItem(import.meta.env.VITE_REFRESH_TOKEN_KEY || 'studfolio_refresh_token', refreshToken);
         }
 
-        return { token, user };
+        return { accessToken, refreshToken, user };
     },
 
     // Logout user
