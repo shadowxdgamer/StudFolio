@@ -68,6 +68,24 @@ const baseTemplate = `
 `;
 
 const templates = {
+    verifyEmail: Handlebars.compile(`
+        <h3>Welcome to StudFolio, {{firstName}}!</h3>
+        <p>Thanks for signing up! Please verify your email address to get started.</p>
+        <p>Click the button below to verify your email:</p>
+        <a href="{{verificationUrl}}" class="button">Verify Email</a>
+        <p>If you didn't create an account on StudFolio, you can safely ignore this email.</p>
+        <p>This verification link will expire in 24 hours.</p>
+    `),
+
+    resetPassword: Handlebars.compile(`
+        <h3>Password Reset Request</h3>
+        <p>Hello {{firstName}},</p>
+        <p>We received a request to reset your password. Click the button below to create a new password:</p>
+        <a href="{{resetUrl}}" class="button">Reset Password</a>
+        <p>If you didn't request a password reset, you can safely ignore this email.</p>
+        <p>This password reset link will expire in 1 hour.</p>
+    `),
+
     sellerApplicationSubmitted: Handlebars.compile(`
         <h3>Hello {{firstName}},</h3>
         <p>Thank you for applying to become a seller on {{siteName}}!</p>
@@ -124,7 +142,7 @@ const renderEmail = (templateName, data) => {
 
     const content = contentTemplate({
         ...data,
-        siteName: "NexaMart",
+        siteName: "StudFolio",
         year: new Date().getFullYear(),
         dashboardUrl: `${process.env.FRONTEND_URL}/dashboard`,
         supportUrl: `${process.env.FRONTEND_URL}/support`,
@@ -132,7 +150,7 @@ const renderEmail = (templateName, data) => {
 
     return Handlebars.compile(baseTemplate)({
         content,
-        siteName: "NexaMart",
+        siteName: "StudFolio",
         year: new Date().getFullYear(),
     });
 };
