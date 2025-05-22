@@ -53,6 +53,7 @@ exports.register = asyncHandler(async (req, res, next) => {
 
         res.status(201).json({
             success: true,
+            data: user,
             message: 'User registered successfully. Please verify your email.'
         });
     } catch (err) {
@@ -309,29 +310,48 @@ exports.updatePassword = asyncHandler(async (req, res, next) => {
  * @access  Private
  */
 const sendTokenResponse = (user, statusCode, res) => {
-    // Create token
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+    // Create tokens
+    const accessToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
         expiresIn: process.env.JWT_EXPIRE
     });
 
-    // Cookie options
-    const options = {
-        expires: new Date(
-            Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000
-        ),
-        httpOnly: true
+    const refreshToken = jwt.sign({ id: user._id }, process.env.JWT_REFRESH_SECRET, {
+        expiresIn: process.env.JWT_REFRESH_EXPIRE
+    });
+
+    // Cookie options for access token
+    const accessTokenOptions = {
+        expires: new Date(Date.now() + parseInt(process.env.JWT_COOKIE_EXPIRE) * 24 * 60 * 60 * 1000),
+        httpOnly: true,
+        sameSite: 'lax'
+    };
+
+    // Cookie options for refresh token
+    const refreshTokenOptions = {
+        expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+        httpOnly: true,
+        sameSite: 'lax'
     };
 
     // Set secure flag in production
     if (process.env.NODE_ENV === 'production') {
-        options.secure = true;
+        accessTokenOptions.secure = true;
+        refreshTokenOptions.secure = true;
     }
 
     res
         .status(statusCode)
-        .cookie('token', token, options)
+        .cookie('accessToken', accessToken, accessTokenOptions)
+        .cookie('refreshToken', refreshToken, refreshTokenOptions)
         .json({
             success: true,
-            token
+            accessToken,
+            refreshToken,
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                isEmailVerified: user.isEmailVerified
+            }
         });
 };
