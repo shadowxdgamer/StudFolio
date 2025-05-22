@@ -23,7 +23,8 @@ const profileService = {    // Get current user profile
     },
 
     // Education related endpoints
-    education: {        getAll: async () => {
+    education: {
+        getAll: async () => {
             const response = await api.get('/profile/education');
             return response.data.data || [];
         },
@@ -39,65 +40,59 @@ const profileService = {    // Get current user profile
             const response = await api.delete(`/profile/education/${id}`);
             return response.data;
         }
-    },
-
-    // Experience related endpoints
+    },    // Experience related endpoints
     experience: {
         getAll: async () => {
             const response = await api.get('/profile/experience');
-            return response.data;
+            return response.data.data || [];
         },
         add: async (experienceData) => {
             const response = await api.post('/profile/experience', experienceData);
-            return response.data;
+            return response.data.data;
         },
         update: async (id, experienceData) => {
             const response = await api.put(`/profile/experience/${id}`, experienceData);
-            return response.data;
+            return response.data.data;
         },
         delete: async (id) => {
             const response = await api.delete(`/profile/experience/${id}`);
-            return response.data;
+            return response.data.data;
         }
-    },
-
-    // Skills related endpoints
+    },    // Skills related endpoints
     skills: {
         getAll: async () => {
             const response = await api.get('/profile/skills');
-            return response.data;
+            return response.data.data || [];
         },
         add: async (skillData) => {
             const response = await api.post('/profile/skills', skillData);
-            return response.data;
+            return response.data.data;
         },
         update: async (id, skillData) => {
             const response = await api.put(`/profile/skills/${id}`, skillData);
-            return response.data;
+            return response.data.data;
         },
         delete: async (id) => {
             const response = await api.delete(`/profile/skills/${id}`);
-            return response.data;
+            return response.data.data;
         }
-    },
-
-    // Languages related endpoints
+    },    // Languages related endpoints
     languages: {
         getAll: async () => {
             const response = await api.get('/profile/languages');
-            return response.data;
+            return response.data.data || [];
         },
         add: async (languageData) => {
             const response = await api.post('/profile/languages', languageData);
-            return response.data;
+            return response.data.data;
         },
         update: async (id, languageData) => {
             const response = await api.put(`/profile/languages/${id}`, languageData);
-            return response.data;
+            return response.data.data;
         },
         delete: async (id) => {
             const response = await api.delete(`/profile/languages/${id}`);
-            return response.data;
+            return response.data.data;
         }
     },
 

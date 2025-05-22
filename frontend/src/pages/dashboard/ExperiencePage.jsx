@@ -30,11 +30,20 @@ import { useFormik } from 'formik';
 import { experienceSchema } from '../../utils/validationSchemas';
 import profileService from '../../services/profileService';
 import { hasError, getErrorMessage, formatDateForInput, formatDateRange } from '../../utils/formHelpers';
+import { useEntityList } from '../../hooks/useEntityList';
 
 const ExperiencePage = () => {
-  const [experienceList, setExperienceList] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const {
+    list: experienceList,
+    loading,
+    error,
+    setError,
+    fetchList,
+    addItem,
+    updateItem,
+    deleteItem,
+  } = useEntityList(profileService.experience);
+
   const [openDialog, setOpenDialog] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -55,17 +64,16 @@ const ExperiencePage = () => {
       try {
         let result;
         if (editingId) {
-          result = await profileService.experience.update(editingId, values);
-          setExperienceList(experienceList.map(item => 
-            item._id === editingId ? result : item
-          ));
+          result = await updateItem(editingId, values);
         } else {
-          result = await profileService.experience.add(values);
-          setExperienceList([...experienceList, result]);
+          result = await addItem(values);
         }
-        resetForm();
-        setOpenDialog(false);
-        setEditingId(null);
+        
+        if (result.success) {
+          resetForm();
+          setOpenDialog(false);
+          setEditingId(null);
+        }
       } catch (err) {
         console.error('Error saving experience:', err);
         setError(err.response?.data?.message || 'Failed to save experience');
@@ -74,24 +82,9 @@ const ExperiencePage = () => {
       }
     },
   });
-
   useEffect(() => {
-    const fetchExperience = async () => {
-      try {
-        setLoading(true);
-        const data = await profileService.experience.getAll();
-        setExperienceList(data);
-        setError(null);
-      } catch (err) {
-        console.error('Error fetching experience:', err);
-        setError(err.response?.data?.message || 'Failed to fetch experience data');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchExperience();
-  }, []);
+    fetchList();
+  }, [fetchList]);
 
   const handleOpenDialog = (experience = null) => {
     if (experience) {
@@ -127,17 +120,11 @@ const ExperiencePage = () => {
     setDeleteDialogOpen(false);
     setDeletingId(null);
   };
-
   const handleDelete = async () => {
     if (!deletingId) return;
 
-    try {
-      await profileService.experience.delete(deletingId);
-      setExperienceList(experienceList.filter(item => item._id !== deletingId));
-      handleCloseDeleteDialog();
-    } catch (err) {
-      console.error('Error deleting experience:', err);
-      setError(err.response?.data?.message || 'Failed to delete experience');
+    const result = await deleteItem(deletingId);
+    if (result.success) {
       handleCloseDeleteDialog();
     }
   };

@@ -32,6 +32,7 @@ import { useFormik } from 'formik';
 import { languageSchema } from '../../utils/validationSchemas';
 import profileService from '../../services/profileService';
 import { hasError, getErrorMessage } from '../../utils/formHelpers';
+import { useEntityList } from '../../hooks/useEntityList';
 
 // Predefined proficiency levels
 const proficiencyLevels = [
@@ -52,9 +53,17 @@ const proficiencyColors = {
 };
 
 const LanguagesPage = () => {
-  const [languages, setLanguages] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const {
+    list: languagesList,
+    loading,
+    error,
+    setError,
+    fetchList,
+    addItem,
+    updateItem,
+    deleteItem,
+  } = useEntityList(profileService.languages);
+
   const [openDialog, setOpenDialog] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -70,17 +79,16 @@ const LanguagesPage = () => {
       try {
         let result;
         if (editingId) {
-          result = await profileService.languages.update(editingId, values);
-          setLanguages(languages.map(item => 
-            item._id === editingId ? result : item
-          ));
+          result = await updateItem(editingId, values);
         } else {
-          result = await profileService.languages.add(values);
-          setLanguages([...languages, result]);
+          result = await addItem(values);
         }
-        resetForm();
-        setOpenDialog(false);
-        setEditingId(null);
+        
+        if (result.success) {
+          resetForm();
+          setOpenDialog(false);
+          setEditingId(null);
+        }
       } catch (err) {
         console.error('Error saving language:', err);
         setError(err.response?.data?.message || 'Failed to save language');
@@ -91,22 +99,8 @@ const LanguagesPage = () => {
   });
 
   useEffect(() => {
-    const fetchLanguages = async () => {
-      try {
-        setLoading(true);
-        const data = await profileService.languages.getAll();
-        setLanguages(data);
-        setError(null);
-      } catch (err) {
-        console.error('Error fetching languages:', err);
-        setError(err.response?.data?.message || 'Failed to fetch languages data');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchLanguages();
-  }, []);
+    fetchList();
+  }, [fetchList]);
 
   const handleOpenDialog = (language = null) => {
     if (language) {
@@ -142,9 +136,10 @@ const LanguagesPage = () => {
     if (!deletingId) return;
 
     try {
-      await profileService.languages.delete(deletingId);
-      setLanguages(languages.filter(item => item._id !== deletingId));
-      handleCloseDeleteDialog();
+      const result = await deleteItem(deletingId);
+      if (result.success) {
+        handleCloseDeleteDialog();
+      }
     } catch (err) {
       console.error('Error deleting language:', err);
       setError(err.response?.data?.message || 'Failed to delete language');
@@ -191,7 +186,7 @@ const LanguagesPage = () => {
             </Paper>
           )}
           
-          {languages.length === 0 ? (
+          {languagesList.length === 0 ? (
             <Card>
               <CardContent>
                 <Box sx={{ textAlign: 'center', py: 3 }}>
@@ -218,7 +213,7 @@ const LanguagesPage = () => {
               <Divider />
               <CardContent>
                 <Grid container spacing={2}>
-                  {languages.map(language => (
+                  {languagesList.map(language => (
                     <Grid item xs={12} sm={6} md={4} key={language._id}>
                       <Paper 
                         elevation={1} 

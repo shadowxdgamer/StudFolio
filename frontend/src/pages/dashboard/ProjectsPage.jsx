@@ -33,13 +33,22 @@ import {
 } from '@mui/icons-material';
 import { useFormik } from 'formik';
 import { projectSchema } from '../../utils/validationSchemas';
-import profileService from '../../services/profileService';
 import { hasError, getErrorMessage, formatDateForInput, formatDateRange } from '../../utils/formHelpers';
+import { useEntityList } from '../../hooks/useEntityList';
+import profileService from '../../services/profileService';
 
 const ProjectsPage = () => {
-  const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const {
+    list: projects,
+    loading,
+    error,
+    setError,
+    fetchList,
+    addItem,
+    updateItem,
+    deleteItem,
+  } = useEntityList(profileService.projects);
+
   const [openDialog, setOpenDialog] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -61,17 +70,16 @@ const ProjectsPage = () => {
       try {
         let result;
         if (editingId) {
-          result = await profileService.projects.update(editingId, values);
-          setProjects(projects.map(item => 
-            item._id === editingId ? result : item
-          ));
+          result = await updateItem(editingId, values);
         } else {
-          result = await profileService.projects.add(values);
-          setProjects([...projects, result]);
+          result = await addItem(values);
         }
-        resetForm();
-        setOpenDialog(false);
-        setEditingId(null);
+
+        if (result.success) {
+          resetForm();
+          setOpenDialog(false);
+          setEditingId(null);
+        }
       } catch (err) {
         console.error('Error saving project:', err);
         setError(err.response?.data?.message || 'Failed to save project');
@@ -82,22 +90,8 @@ const ProjectsPage = () => {
   });
 
   useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        setLoading(true);
-        const data = await profileService.projects.getAll();
-        setProjects(data);
-        setError(null);
-      } catch (err) {
-        console.error('Error fetching projects:', err);
-        setError(err.response?.data?.message || 'Failed to fetch projects data');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProjects();
-  }, []);
+    fetchList();
+  }, [fetchList]);
 
   const handleOpenDialog = (project = null) => {
     if (project) {
@@ -139,9 +133,10 @@ const ProjectsPage = () => {
     if (!deletingId) return;
 
     try {
-      await profileService.projects.delete(deletingId);
-      setProjects(projects.filter(item => item._id !== deletingId));
-      handleCloseDeleteDialog();
+      const result = await deleteItem(deletingId);
+      if (result.success) {
+        handleCloseDeleteDialog();
+      }
     } catch (err) {
       console.error('Error deleting project:', err);
       setError(err.response?.data?.message || 'Failed to delete project');

@@ -32,8 +32,9 @@ import {
 } from '@mui/icons-material';
 import { useFormik } from 'formik';
 import { skillSchema } from '../../utils/validationSchemas';
-import profileService from '../../services/profileService';
 import { hasError, getErrorMessage } from '../../utils/formHelpers';
+import { useEntityList } from '../../hooks/useEntityList';
+import profileService from '../../services/profileService';
 
 // Predefined skill categories
 const skillCategories = [
@@ -50,9 +51,17 @@ const skillCategories = [
 ];
 
 const SkillsPage = () => {
-  const [skills, setSkills] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const {
+    list: skills,
+    loading,
+    error,
+    setError,
+    fetchList,
+    addItem,
+    updateItem,
+    deleteItem,
+  } = useEntityList(profileService.skills);
+
   const [openDialog, setOpenDialog] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -69,17 +78,16 @@ const SkillsPage = () => {
       try {
         let result;
         if (editingId) {
-          result = await profileService.skills.update(editingId, values);
-          setSkills(skills.map(item => 
-            item._id === editingId ? result : item
-          ));
+          result = await updateItem(editingId, values);
         } else {
-          result = await profileService.skills.add(values);
-          setSkills([...skills, result]);
+          result = await addItem(values);
         }
-        resetForm();
-        setOpenDialog(false);
-        setEditingId(null);
+
+        if (result.success) {
+          resetForm();
+          setOpenDialog(false);
+          setEditingId(null);
+        }
       } catch (err) {
         console.error('Error saving skill:', err);
         setError(err.response?.data?.message || 'Failed to save skill');
@@ -90,22 +98,8 @@ const SkillsPage = () => {
   });
 
   useEffect(() => {
-    const fetchSkills = async () => {
-      try {
-        setLoading(true);
-        const data = await profileService.skills.getAll();
-        setSkills(data);
-        setError(null);
-      } catch (err) {
-        console.error('Error fetching skills:', err);
-        setError(err.response?.data?.message || 'Failed to fetch skills data');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchSkills();
-  }, []);
+    fetchList();
+  }, [fetchList]);
 
   const handleOpenDialog = (skill = null) => {
     if (skill) {
@@ -142,8 +136,7 @@ const SkillsPage = () => {
     if (!deletingId) return;
 
     try {
-      await profileService.skills.delete(deletingId);
-      setSkills(skills.filter(item => item._id !== deletingId));
+      await deleteItem(deletingId);
       handleCloseDeleteDialog();
     } catch (err) {
       console.error('Error deleting skill:', err);
