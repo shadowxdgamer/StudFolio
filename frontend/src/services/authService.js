@@ -19,11 +19,10 @@ export const authService = {
         }
 
         return { accessToken, refreshToken, user };
-    },
-
-    // Logout user
+    },    // Logout user
     logout: () => {
-        localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(import.meta.env.VITE_ACCESS_TOKEN_KEY || 'studfolio_access_token');
+        localStorage.removeItem(import.meta.env.VITE_REFRESH_TOKEN_KEY || 'studfolio_refresh_token');
     },
 
     // Check if user is authenticated
