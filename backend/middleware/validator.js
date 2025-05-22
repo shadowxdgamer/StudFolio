@@ -166,3 +166,110 @@ exports.experienceValidation = [
   check('type').optional().isIn(['full-time', 'part-time', 'internship', 'freelance', 'contract', 'volunteer'])
     .withMessage('Type must be one of: full-time, part-time, internship, freelance, contract, volunteer')
 ];
+
+// Project Validations
+exports.projectValidation = [
+  check('title', 'Project title is required')
+    .notEmpty().trim().isLength({ max: 100 })
+    .withMessage('Title cannot be more than 100 characters'),
+  check('description', 'Project description is required')
+    .notEmpty().trim().isLength({ max: 500 })
+    .withMessage('Description cannot be more than 500 characters'),
+  check('technologies').optional().isArray()
+    .withMessage('Technologies must be an array'),
+  check('technologies.*').optional().isLength({ max: 50 })
+    .withMessage('Technology name cannot be more than 50 characters'),
+  check('liveUrl').optional().isURL()
+    .withMessage('Live URL must be a valid URL'),
+  check('githubUrl').optional().matches(/^(http(s)?:\/\/)?([\w]+\.)?github\.com\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+/)
+    .withMessage('Please provide a valid GitHub repository URL'),
+  check('featured').optional().isBoolean()
+    .withMessage('Featured must be a boolean'),
+  check('from').optional().isDate()
+    .withMessage('From date must be a valid date'),
+  check('to').optional().isDate()
+    .withMessage('To date must be a valid date')
+    .custom((value, { req }) => {
+      if (value && req.body.from && new Date(value) < new Date(req.body.from)) {
+        throw new Error('To date must be after from date');
+      }
+      return true;
+    })
+];
+
+// Skill Validations
+exports.skillValidation = [
+  check('name', 'Skill name is required')
+    .notEmpty().trim().isLength({ max: 50 })
+    .withMessage('Skill name cannot be more than 50 characters'),
+  check('level').optional().isInt({ min: 1, max: 5 })
+    .withMessage('Level must be a number between 1 and 5'),
+  check('category').optional().isIn(['technical', 'soft', 'language', 'other'])
+    .withMessage('Category must be one of: technical, soft, language, other')
+];
+
+// Language Validations
+exports.languageValidation = [
+  check('name', 'Language name is required')
+    .notEmpty().trim().isLength({ max: 50 })
+    .withMessage('Language name cannot be more than 50 characters'),
+  check('proficiency').optional().isIn(['beginner', 'intermediate', 'advanced', 'fluent', 'native'])
+    .withMessage('Proficiency must be one of: beginner, intermediate, advanced, fluent, native')
+];
+
+// Project Validations
+exports.projectValidation = [
+  check('title', 'Project title is required')
+    .notEmpty().trim().isLength({ max: 100 })
+    .withMessage('Title cannot be more than 100 characters'),
+  check('description', 'Description is required')
+    .notEmpty().trim().isLength({ max: 500 })
+    .withMessage('Description cannot be more than 500 characters'),
+  check('technologies').optional().isArray()
+    .withMessage('Technologies must be an array'),
+  check('technologies.*').optional().trim().isLength({ max: 50 })
+    .withMessage('Technology name cannot be more than 50 characters'),
+  check('liveUrl').optional().trim().isURL()
+    .withMessage('Live URL must be a valid URL'),
+  check('githubUrl').optional().trim()
+    .matches(/^(http(s)?:\/\/)?([\w]+\.)?github\.com\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+/)
+    .withMessage('GitHub URL must be a valid GitHub repository URL'),
+  check('featured').optional().isBoolean()
+    .withMessage('Featured must be a boolean'),
+  check('from').optional().isDate()
+    .withMessage('From date must be a valid date'),
+  check('to').optional().isDate()
+    .withMessage('To date must be a valid date')
+    .custom((value, { req }) => {
+      if (value && req.body.from && new Date(value) < new Date(req.body.from)) {
+        throw new Error('To date must be after from date');
+      }
+      return true;
+    })
+];
+
+// Skill Validations
+exports.skillValidation = [
+  check('name', 'Skill name is required')
+    .notEmpty().trim().isLength({ max: 50 })
+    .withMessage('Skill name cannot be more than 50 characters'),
+  check('level')
+    .optional()
+    .isInt({ min: 1, max: 5 })
+    .withMessage('Level must be a number between 1 and 5'),
+  check('category')
+    .optional()
+    .isIn(['technical', 'soft', 'language', 'other'])
+    .withMessage('Category must be one of: technical, soft, language, other')
+];
+
+// Language Validations
+exports.languageValidation = [
+  check('name', 'Language name is required')
+    .notEmpty().trim().isLength({ max: 50 })
+    .withMessage('Language name cannot be more than 50 characters'),
+  check('proficiency')
+    .optional()
+    .isIn(['beginner', 'intermediate', 'advanced', 'fluent', 'native'])
+    .withMessage('Proficiency must be one of: beginner, intermediate, advanced, fluent, native')
+];

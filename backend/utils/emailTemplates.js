@@ -40,15 +40,6 @@ const baseTemplate = `
             border-radius: 5px;
             margin: 20px 0;
         }
-               
-    
-        .status {
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 4px;
-        }
-        .status.approved {
-            background: #dcfce7;
             color: #166534;
         }
         .status.pending {
