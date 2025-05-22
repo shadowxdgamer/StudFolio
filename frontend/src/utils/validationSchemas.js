@@ -65,9 +65,9 @@ export const changePasswordSchema = Yup.object().shape({
 
 // Profile validations
 export const profileSchema = Yup.object().shape({
-    title: Yup.string()
-        .required('Title is required')
-        .max(100, 'Title cannot exceed 100 characters'),
+    headline: Yup.string()
+        .required('Professional headline is required')
+        .max(100, 'Headline cannot exceed 100 characters'),
     bio: Yup.string()
         .required('Bio is required')
         .max(500, 'Bio cannot exceed 500 characters'),
@@ -78,6 +78,8 @@ export const profileSchema = Yup.object().shape({
     github: Yup.string()
         .url('Must be a valid URL'),
     linkedin: Yup.string()
+        .url('Must be a valid URL'),
+    twitter: Yup.string()
         .url('Must be a valid URL'),
 });
 

@@ -4,11 +4,15 @@ const profileService = {    // Get current user profile
     getProfile: async () => {
         const response = await api.get('/profile/me');
         return response.data.data;
+    },    // Create or update profile
+    updateProfile: async (profileData) => {
+        const response = await api.post('/profile', profileData);
+        return response.data;
     },
 
-    // Create or update profile
-    updateProfile: async (profileData) => {
-        const response = await api.put('/profile', profileData);
+    // Update social links
+    updateSocialLinks: async (socialData) => {
+        const response = await api.put('/profile/social', socialData);
         return response.data;
     },
 

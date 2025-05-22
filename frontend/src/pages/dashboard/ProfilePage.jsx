@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   Box,
   Button,
@@ -23,17 +23,19 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
+  const [success, setSuccess] = useState(false);
   const { user } = useAuth();
+  const isMounted = useRef(true);
 
   const formik = useFormik({
     initialValues: {
-      title: '',
+      headline: '',
       bio: '',
       location: '',
       website: '',
       github: '',
       linkedin: '',
+      twitter: '',
     },
     validationSchema: profileSchema,
     onSubmit: async (values) => {
@@ -42,56 +44,97 @@ const ProfilePage = () => {
         setError(null);
         setSuccess(null);
 
-        await profileService.updateProfile(values);
-        setSuccess('Profile updated successfully!');
+        // Split the values into profile and social data
+        const profileData = {
+          headline: values.headline,
+          bio: values.bio,
+          location: values.location,
+          website: values.website,
+        };
+
+        const socialData = {
+          github: values.github,
+          linkedin: values.linkedin,
+          twitter: values.twitter,
+        };
+
+        // Update profile first
+        await profileService.updateProfile(profileData);
+        
+        // Then update social links
+        await profileService.updateSocialLinks(socialData);
+        
+        if (isMounted.current) {
+          setSuccess('Profile updated successfully!');
+        }
       } catch (err) {
-        setError(err.response?.data?.message || 'Failed to update profile. Please try again.');
+        if (isMounted.current) {
+          setError(err.response?.data?.message || 'Failed to update profile. Please try again.');
+        }
       } finally {
-        setSaving(false);
+        if (isMounted.current) {
+          setSaving(false);
+        }
       }
     },
   });
 
+  // Effect to handle cleanup
+  useEffect(() => {
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+
+  // Effect to fetch profile data
   useEffect(() => {
     const fetchProfile = async () => {
+      if (!isMounted.current) return;
+
       try {
         setLoading(true);
         setError(null);
         
         const profileData = await profileService.getProfile();
         
-        // If profile exists, populate the form with existing data
-        if (profileData) {
+        if (isMounted.current && profileData) {
           formik.setValues({
-            title: profileData.title || '',
+            headline: profileData.headline || '',
             bio: profileData.bio || '',
             location: profileData.location || '',
             website: profileData.website || '',
-            github: profileData.github || '',
-            linkedin: profileData.linkedin || '',
-          });
+            github: profileData.social?.github || '',
+            linkedin: profileData.social?.linkedin || '',
+            twitter: profileData.social?.twitter || '',
+          }, false); // Add false to prevent validation on initial load
         }
       } catch (err) {
         // If it's a 404, that just means no profile yet, not an error to display
-        if (err.response?.status !== 404) {
+        if (err.response?.status !== 404 && isMounted.current) {
           setError(err.response?.data?.message || 'Failed to load profile. Please try again.');
         }
       } finally {
-        setLoading(false);
+        if (isMounted.current) {
+          setLoading(false);
+        }
       }
     };
-
+    
     fetchProfile();
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // We want this effect to run only once on mount
 
   // Reset success message after 5 seconds
   useEffect(() => {
-    if (success) {
-      const timer = setTimeout(() => {
+    if (!success) return;
+
+    const timer = setTimeout(() => {
+      if (isMounted.current) {
         setSuccess(null);
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
+      }
+    }, 5000);
+
+    return () => clearTimeout(timer);
   }, [success]);
 
   if (loading) {
@@ -148,7 +191,7 @@ const ProfilePage = () => {
                 {user?.name || 'User Name'}
               </Typography>
               <Typography variant="body1" gutterBottom>
-                {formik.values.title || 'Your Professional Title'}
+                {formik.values.headline || 'Your Professional Title'}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 {formik.values.location || 'Your Location'}
@@ -167,15 +210,15 @@ const ProfilePage = () => {
                   <Grid item xs={12}>
                     <TextField
                       fullWidth
-                      id="title"
-                      name="title"
-                      label="Professional Title"
+                      id="headline"
+                      name="headline"
+                      label="Professional Headline"
                       placeholder="e.g. Full Stack Developer"
-                      value={formik.values.title}
+                      value={formik.values.headline}
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
-                      error={hasError(formik.touched, formik.errors, 'title')}
-                      helperText={getErrorMessage(formik.touched, formik.errors, 'title')}
+                      error={hasError(formik.touched, formik.errors, 'headline')}
+                      helperText={getErrorMessage(formik.touched, formik.errors, 'headline')}
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -222,7 +265,7 @@ const ProfilePage = () => {
                       helperText={getErrorMessage(formik.touched, formik.errors, 'website')}
                     />
                   </Grid>
-                  <Grid item xs={12} md={6}>
+                  <Grid item xs={12} md={4}>
                     <TextField
                       fullWidth
                       id="github"
@@ -236,7 +279,7 @@ const ProfilePage = () => {
                       helperText={getErrorMessage(formik.touched, formik.errors, 'github')}
                     />
                   </Grid>
-                  <Grid item xs={12} md={6}>
+                  <Grid item xs={12} md={4}>
                     <TextField
                       fullWidth
                       id="linkedin"
@@ -248,6 +291,20 @@ const ProfilePage = () => {
                       onBlur={formik.handleBlur}
                       error={hasError(formik.touched, formik.errors, 'linkedin')}
                       helperText={getErrorMessage(formik.touched, formik.errors, 'linkedin')}
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={4}>
+                    <TextField
+                      fullWidth
+                      id="twitter"
+                      name="twitter"
+                      label="Twitter URL"
+                      placeholder="https://twitter.com/yourusername"
+                      value={formik.values.twitter}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      error={hasError(formik.touched, formik.errors, 'twitter')}
+                      helperText={getErrorMessage(formik.touched, formik.errors, 'twitter')}
                     />
                   </Grid>
                   <Grid item xs={12}>
